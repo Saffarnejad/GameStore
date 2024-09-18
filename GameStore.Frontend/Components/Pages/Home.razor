@@ -1,0 +1,64 @@
+﻿@page "/"
+@inject GamesClient GamesClient
+@attribute [StreamRendering]
+
+<PageTitle>Game Catalog</PageTitle>
+
+<div class="mt-2">
+    <a class="btn btn-primary" role="button" href="/editgame">New Game</a>
+</div>
+
+<table class="table table-striped table-bordered table-hover mt-3">
+    <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Genre</th>
+            <th class="text-end">Price</th>
+            <th>Release Date</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (_gameSummaries is null)
+        {
+            <tr>
+                <td class="text-center" colspan="6">Loading...</td>
+            </tr>
+        }
+        else
+        {
+            foreach (var gameSummary in _gameSummaries)
+            {
+                <tr>
+                    <td>@gameSummary.Id</td>
+                    <td>@gameSummary.Name</td>
+                    <td>@gameSummary.Genre</td>
+                    <td class="text-end">@gameSummary.Price.ToString("C2")</td>
+                    <td>@gameSummary.ReleaseDate</td>
+                    <td class="d-flex">
+                        <div>
+                            <a class="btn btn-primary me-2" role="button" href="/editgame/@gameSummary.Id">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#@DeleteGame.GetModalId(gameSummary)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        <DeleteGame GameSummary="gameSummary" />
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
+@code {
+    private GameSummary[]? _gameSummaries;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _gameSummaries = await GamesClient.GetGamesAsync();
+    }
+}
